@@ -1,0 +1,19 @@
+# Parâmetros gerais da simulação
+seed: 42
+replications: 30
+horizon_min: 120          # minutos simulados após o fim do jogo
+
+# Política ativa
+policy:
+  matching: immediate     # immediate | batch
+  batch_window_s: 30
+  pooling: false
+  relocation: false
+
+# Valores provisórios (substituídos pelos dados reais)
+placeholder:
+  request_rate_per_min: 20
+  request_duration_min: 60
+  travel_time_min: 5
+  n_vehicles: 50
+  patience_mean_min: 15

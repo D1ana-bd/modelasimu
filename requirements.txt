@@ -8,3 +8,9 @@ simpy
 mesa
 pyyaml
 duckdb
+matplobblib
+jupyter
+plotly
+nbstripout
+seaborn
+streamlit
