@@ -23,6 +23,6 @@ placeholder:
   nearby_zones: [2, 3, 4]
   destination_zones: [10, 11, 12, 13, 14]
 
-  # Parâmetros usados no cálculo dos KPIs
-  kpi:
-    emission_kg_co2_per_km: 0.15  # pressuposto a justificar no relatório
+# Parâmetros usados no cálculo dos KPIs
+kpi:
+  emission_kg_co2_per_km: 0.15  # pressuposto a justificar no relatório
