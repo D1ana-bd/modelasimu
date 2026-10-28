@@ -14,6 +14,11 @@ policy:
 placeholder:
   request_rate_per_min: 20
   request_duration_min: 60
-  travel_time_min: 5
-  n_vehicles: 50
   patience_mean_min: 15
+  travel_time_min: 5            # entre zonas diferentes
+  travel_time_same_zone_min: 2  # dentro da mesma zona
+  speed_kmh: 20                 # para converter tempo em km
+  n_vehicles: 50
+  stadium_zone: 1               # IDs de zona fictícios por agora
+  nearby_zones: [2, 3, 4]
+  destination_zones: [10, 11, 12, 13, 14]

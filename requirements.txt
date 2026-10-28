@@ -2,7 +2,6 @@ pandas
 numpy
 scipy
 pytest
-unittest
 geopandas
 simpy
 mesa
