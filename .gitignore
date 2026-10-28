@@ -1,0 +1,30 @@
+# ---------- Dados (grandes, regeneráveis pelos scripts) ----------
+data/raw/*
+!data/raw/.gitkeep
+*.parquet
+*.zip
+
+# ---------- Resultados das experiências (regeneráveis) ----------
+experiments/results/*
+!experiments/results/.gitkeep
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ---------- Ambiente virtual ----------
+.venv/
+venv/
+env/
+.env
+
+# ---------- Jupyter ----------
+.ipynb_checkpoints/
+
+# ---------- Editores e sistema ----------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
