@@ -4,7 +4,7 @@ scipy
 pytest
 geopandas
 simpy
-mesa
+mesa[rec]>=3.5
 pyyaml
 duckdb
 matplobblib
