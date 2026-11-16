@@ -1,28 +1,37 @@
-# Parâmetros gerais da simulação
+# ===== Parâmetros do baseline =====
 seed: 42
 replications: 30
-horizon_min: 120          # minutos simulados após o fim do jogo
 
-# Política ativa
-policy:
-  matching: immediate     # immediate | batch
-  batch_window_s: 30
-  pooling: false
-  relocation: false
+# Tempo
+tick_minutes: 0.5           # 1 passo da simulação = 30 segundos
+horizon_min: 180            # limite de segurança: a simulação para aqui
 
-# Valores provisórios (substituídos pelos dados reais)
-placeholder:
+# Mundo abstrato (grelha com o estádio no centro)
+world:
+  width: 41
+  height: 41
+  cell_km: 0.25             # 1 célula = 250 m  →  carro a 30 km/h anda 1 célula por passo
+  min_trip_cells: 6         # destinos a pelo menos 6 células do estádio
+
+# Procura (passageiros)  — valores provisórios, calibrados depois com NYC
+demand:
   request_rate_per_min: 20
   request_duration_min: 60
   patience_mean_min: 15
-  travel_time_min: 5            # entre zonas diferentes
-  travel_time_same_zone_min: 2  # dentro da mesma zona
-  speed_kmh: 20                 # para converter tempo em km
-  n_vehicles: 50
-  stadium_zone: 1               # IDs de zona fictícios por agora
-  nearby_zones: [2, 3, 4]
-  destination_zones: [10, 11, 12, 13, 14]
+  patience_max_min: 45      # limita a cauda da exponencial
 
-# Parâmetros usados no cálculo dos KPIs
+# Oferta (carros)  — valores provisórios, calibrados depois com NYC
+supply:
+  n_vehicles: 250
+  initial_radius_cells: 10  # carros começam espalhados até 10 células do estádio
+
+# Política ativa (o baseline é: imediato, sem pooling, sem reposicionamento)
+policy:
+  matching: immediate       # immediate | batch
+  batch_window_ticks: 1
+  pooling: false
+  relocation: false
+
+# KPIs
 kpi:
-  emission_kg_co2_per_km: 0.15  # pressuposto a justificar no relatório
+  emission_kg_co2_per_km: 0.15   # pressuposto a justificar com fonte no relatório

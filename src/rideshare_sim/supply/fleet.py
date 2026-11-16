@@ -1,25 +1,20 @@
-"""Frota disponível no início da simulação.
+"""Criação da frota.
 
-PLACEHOLDER: substituído em feature/supply-data
-(frota inicial e chegada de carros calibradas com os dados reais).
+PLACEHOLDER: `n_vehicles` carros livres espalhados à volta do estádio.
+Substituído em feature/supply-calibration (frota calibrada com NYC).
 """
 
 from __future__ import annotations
 
-import numpy as np
-
-from rideshare_sim.core.entities import Vehicle
+from rideshare_sim.supply.vehicle import Vehicle
 
 
-def create_fleet(params: dict, rng: np.random.Generator) -> list[Vehicle]:
-    """Cria a frota inicial.
-
-    Versão provisória: `n_vehicles` carros livres, distribuídos ao acaso
-    pela zona do estádio e pelas zonas vizinhas.
-    """
-    p = params["placeholder"]
-    zones = [p["stadium_zone"], *p["nearby_zones"]]
-    return [
-        Vehicle(id=i, zone=int(rng.choice(zones)))
-        for i in range(p["n_vehicles"])
-    ]
+def create_fleet(model) -> list[Vehicle]:
+    s = model.params["supply"]
+    fleet = []
+    for _ in range(s["n_vehicles"]):
+        v = Vehicle(model)
+        cell = model.world.random_cell_near_stadium(model.rng, s["initial_radius_cells"])
+        model.grid.place_agent(v, cell)
+        fleet.append(v)
+    return fleet

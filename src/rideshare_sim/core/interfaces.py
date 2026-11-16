@@ -1,46 +1,46 @@
-"""Contratos entre os módulos (o que cada lado entrega ao núcleo).
+"""Contratos entre as partes do modelo.
 
 Cada lado pode mudar a implementação à vontade, desde que respeite
-estas assinaturas. Assim procura e oferta evoluem em paralelo.
+estas assinaturas.
 """
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 import numpy as np
 
-from rideshare_sim.core.entities import Request, Vehicle
+if TYPE_CHECKING:
+    from rideshare_sim.demand.passenger import Passenger
+    from rideshare_sim.supply.vehicle import Vehicle
+
+Cell = tuple[int, int]
 
 
-class GenerateRequests(Protocol):
-    """Procura → núcleo: lista de pedidos de uma replicação, ordenada por t_request."""
+class World(Protocol):
+    """O "mundo": onde estão as coisas e quanto tempo se demora entre elas."""
 
-    def __call__(self, params: dict, rng: np.random.Generator) -> list[Request]: ...
+    stadium: Cell
+
+    def distance(self, a: Cell, b: Cell) -> int: ...
+    def travel_time(self, a: Cell, b: Cell) -> float: ...
+    def distance_km(self, a: Cell, b: Cell) -> float: ...
+    def step_towards(self, a: Cell, b: Cell) -> Cell: ...
+    def random_destination(self, rng: np.random.Generator) -> Cell: ...
 
 
-class TravelTime(Protocol):
-    """Oferta → núcleo: tempo de viagem (min) entre duas zonas, à hora t (min)."""
+class NewRequests(Protocol):
+    """Procura → modelo: quantos pedidos novos aparecem neste passo."""
 
-    def __call__(self, zone_a: int, zone_b: int, t: float) -> float: ...
-
-
-class CreateFleet(Protocol):
-    """Oferta → núcleo: veículos disponíveis no início da simulação."""
-
-    def __call__(self, params: dict, rng: np.random.Generator) -> list[Vehicle]: ...
+    def __call__(self, time_min: float, params: dict, rng: np.random.Generator) -> int: ...
 
 
 class Match(Protocol):
-    """Oferta → núcleo: decide que carro vai buscar que pedido.
+    """Oferta → modelo: que carro vai buscar que passageiro.
 
-    Devolve pares (pedido, veículo). Pedidos sem carro ficam para a próxima decisão.
+    Passageiros sem carro ficam para a próxima decisão.
     """
 
     def __call__(
-        self,
-        pending: list[Request],
-        free_vehicles: list[Vehicle],
-        now: float,
-        travel_time: TravelTime,
-    ) -> list[tuple[Request, Vehicle]]: ...
+        self, waiting: list[Passenger], free: list[Vehicle], world: World
+    ) -> list[tuple[Passenger, Vehicle]]: ...
