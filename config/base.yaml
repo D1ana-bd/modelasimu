@@ -19,7 +19,7 @@ world:
 
 # Procura (passageiros)
 demand:
-  city_rate_per_min: 5      # PLACEHOLDER: procura normal, na cidade toda, o tempo todo
+  city_rate_per_min: 5      # PLACEHOLDER: procura normal, na cidade toda, o tempo tod*
   event:
     enabled: true           # false = dia normal (E0)
     peak_rate_per_min: 20   # PLACEHOLDER: ritmo máximo do pico no estádio
