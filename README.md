@@ -4,7 +4,7 @@ Projeto da unidade curricular **Modelação e Simulação 2026/27** – Tema 14:
 
 Simulamos uma **cidade** com um serviço de TVDE (tipo Uber) e estudamos como a plataforma deve gerir a frota quando um **evento** (a saída de um jogo) cria um **pico de procura numa zona**, sem deixar o resto da cidade sem serviço.
 
-Modelo **baseado em agentes**, feito em Python com [Mesa](https://mesa.readthedocs.io/) e visualizado no browser com Solara.
+Modelo **baseado em agentes**, feito em Python com [Mesa](https://mesa.readthedocs.io/) e visualizado com Pygame.
 
 >  Documentação completa: `projeto_guide.md` (modelo conceptual, prioridades, divisão do trabalho) e `projeto_report.md` (progresso e decisões).
 
@@ -16,10 +16,10 @@ Modelo **baseado em agentes**, feito em Python com [Mesa](https://mesa.readthedo
 2. [O modelo em resumo](#2-o-modelo-em-resumo)
 3. [Experiências](#3-experiências)
 4. [KPIs e critério de otimização](#4-kpis-e-critério-de-otimização)
-5. [Prioridades](#5-prioridades)
+5. [Fases do trabalho](#5-fases-do-trabalho)
 6. [Estrutura do repositório](#6-estrutura-do-repositório)
 7. [Instalação e execução](#7-instalação-e-execução)
-8. [Divisão de tarefas](#8-divisão-de-tarefas)
+8. [Divisão do trabalho por fases](#8-divisão-do-trabalho-por-fases)
 9. [Branches e fluxo de trabalho](#9-branches-e-fluxo-de-trabalho)
 10. [Marcos](#10-marcos)
 11. [Dados e referências](#11-dados-e-referências)
@@ -90,15 +90,20 @@ Cada experiência: 30 replicações, média e intervalo de confiança a 95%.
 
 ---
 
-## 5. Prioridades
+## 5. Fases do trabalho
 
-| Prioridade | O quê |
-|---|---|
-| **1. Essencial** | Cidade + pico, agentes, matching imediato, KPIs por zona, visualização, replicações (E0, E1) |
-| **2. Importante** | Reposicionamento com limite, matching em lote, gráfico do *trade-off* (E2–E4) |
-| **3. Robustez** | Evento grande, análise de sensibilidade, estatística (E5) |
-| **4. Valores reais** | Calibração com dados TVDE de Nova Iorque |
-| **5. Extensões** | Pooling, mapa real (mesa-geo) |
+O trabalho está dividido em **fases completas**: cada fase tem código, experiências, gráficos e análise, e responde a uma pergunta. As fases estão ordenadas por prioridade: se o tempo apertar, corta-se de baixo para cima.
+
+| Fase | Tema | Experiências | Pergunta | Prioridade |
+|---|---|---|---|---|
+| **1** | Baseline | E0, E1 | Qual o impacto do pico sem nenhuma política? | Essencial |
+| **2** | Política: matching em lote | E2 | O lote ajuda durante o pico? | Importante |
+| **3** | Política: reposicionamento com limite | E3, E4 | Quanto ajuda o evento, quanto custa à cidade e qual o melhor limite? | Importante |
+| **4** | Robustez | E5 + sensibilidade | As conclusões aguentam mais pressão e outros pressupostos? | Robustez |
+| **5** | Extensão (se houver tempo) | – | Pooling **ou** calibração com dados de NYC | Extra |
+| **6** | Relatório e demo | – | – | Essencial |
+
+**Políticas estudadas:** 2 (matching em lote e reposicionamento), com 7 variantes comparadas contra o baseline. O **pooling**, também referido no enunciado do Tema 14, ficou fora do núcleo por ser o mais complexo e não responder à pergunta principal; é a extensão preferida para a Fase 5 e, se não for feito, entra no relatório como trabalho futuro.
 
 ---
 
@@ -116,9 +121,11 @@ modelasimu/
 │   ├── demand/                # passageiros, chegadas, KPIs da procura
 │   ├── supply/                # carros, frota, matching, reposicionamento, KPIs da oferta
 │   ├── analysis/              # estatística dos resultados
-│   └── data/                  # calibração com dados de NYC (prioridade 4)
+│   └── data/                  # calibração com dados de NYC (Fase 5)
 ├── experiments/               # correr experiências, gráficos, sensibilidade
-├── viz/app.py                 # visualização no browser
+├── viz/
+│   ├── pygame_app.py          # visualização principal (janela Pygame)
+│   └── app.py                 # visualização alternativa no browser (Solara)
 ├── tests/                     # testes de verificação
 ├── data/                      # dados (os brutos não vão para o git)
 ├── notebooks/                 # exploração
@@ -142,29 +149,44 @@ pip install -e .
 | Para… | Comando |
 |---|---|
 | Correr os testes | `pytest -v` |
-| Abrir a visualização | `solara run viz/app.py` |
-| Correr uma experiência | `python experiments/run.py config/scenarios/e1_baseline.yaml` *(previsto)* |
+| Abrir a visualização (Pygame) | `python viz/pygame_app.py` |
+| Visualização com mais carros / dia normal | `python viz/pygame_app.py --vehicles 300` · `--no-event` |
+| Guardar uma imagem de um minuto | `python viz/pygame_app.py --snapshot figura.png --at 25` |
+| Visualização alternativa (browser) | `solara run viz/app.py` |
+| Correr uma experiência | `python experiments/run.py config/scenarios/e1_baseline.yaml` *(previsto, Fase 1)* |
 
-A visualização abre no browser em `localhost` (só no próprio computador).
+Teclas do Pygame: `Espaço` pausa · `+`/`−` velocidade · `R` reinicia · `Esc` sai.
 
 ---
 
-## 8. Divisão de tarefas
+## 8. Divisão do trabalho por fases
 
-Cada pessoa fica com um lado do sistema; o núcleo, as experiências e a visualização fazem-se em conjunto.
+Cada pessoa fica com **fases inteiras**: programa a política ou a base, corre as experiências, faz os gráficos e interpreta os resultados. As duas programam, analisam e escrevem.
 
-| | Pessoa A – Procura (passageiros) | Pessoa B – Oferta (carros) |
+| | Pessoa X – Diana | Pessoa Y – Catarina |
 |---|---|---|
-| **Pastas** | `src/rideshare_sim/demand/` | `src/rideshare_sim/supply/` |
-| **Prioridade 1** | Procura normal + pico do evento, tipo de passageiro, paciência, KPIs por zona | Frota espalhada, movimento, matching imediato, KPIs de frota |
-| **Prioridade 2** | Configuração de E2–E4, gráfico do *trade-off*, painel de KPIs | Reposicionamento com limite, matching em lote, seletor de experiências |
-| **Prioridade 3** | Evento grande, sensibilidade à paciência | Sensibilidade à frota e ao momento do reposicionamento |
-| **Prioridade 4** | Calibrar a procura (NYC) | Calibrar velocidade e duração das viagens (NYC) |
-| **Testes** | Escreve os testes da oferta | Escreve os testes da procura |
+| **Fases** | **1 – Baseline** · **2 – Matching em lote** · 5 – Extensão (se houver tempo) | **3 – Reposicionamento** · **4 – Robustez** |
+| **Código** | `experiments/run.py` · `analysis/stats.py` · KPIs por zona (`core/metrics.py`) · curva do pico e frota · `match_batch` (`supply/matching.py`) | `supply/relocation.py` · ligação ao `model.py` · `experiments/sensitivity.py` · cenário de evento grande |
+| **Experiências** | E0, E1, E2 | E3, E4, E5, sensibilidade |
+| **Gráficos** | Pessoas à espera (E0 vs. E1) · tabela de KPIs com intervalos de confiança · imediato vs. lote | **Gráfico do *trade-off*** (limite X vs. desistências) · gráficos de sensibilidade |
+| **Análise** | Impacto do pico (H1) · efeito do lote (H4) | Melhor limite X (H2, H3) · robustez das conclusões |
+| **Visualização** | Modo de matching visível no Pygame | Carros a reposicionar visíveis no Pygame |
+| **Testes (verificação cruzada)** | Escreve os testes do reposicionamento | Escreve os testes do matching em lote |
 
-**Juntas:** modelo conceptual, `model.py`, `core/`, `world/`, visualização, experiências, análise estatística, relatório e demo.
+**Juntas:** introdução, modelo conceptual, conclusões, relatório final e demo.
 
-O plano detalhado, passo a passo e com os ficheiros a criar e editar, está no `projeto_guide.md`.
+### Como trabalham ao mesmo tempo
+
+| Período | Pessoa X | Pessoa Y |
+|---|---|---|
+| 1 | Fase 1 completa | Fase 3: código do reposicionamento + testes + Pygame |
+| 2 | Fase 2 completa | Fase 3: experiências E3/E4 (com o `run.py` da Fase 1), *trade-off*, análise |
+| 3 | Fase 5 (extensão) ou revisão | Fase 4 completa |
+| 4 | Relatório e demo (juntas) | Relatório e demo (juntas) |
+
+**Contratos combinados no primeiro dia**, para não dependerem uma da outra: os **nomes dos KPIs** que o `compute_kpis` devolve (ex.: `pct_abandoned_event`, `wait_mean_city`) e as **chaves das políticas** no `config/base.yaml` (`policy.matching`, `policy.relocation.enabled`, `cap_pct`, `lead_min`).
+
+O plano detalhado, com os ficheiros a criar e editar, está no `projeto_guide.md`.
 
 ---
 
@@ -173,14 +195,11 @@ O plano detalhado, passo a passo e com os ficheiros a criar e editar, está no `
 ```
 main                              ← versões estáveis (marcos)
 └── develop                       ← integração
-    ├── feature/demand-city-event       (A)
-    ├── feature/supply-fleet            (B)
-    ├── feature/visualization           (juntas)
-    ├── feature/experiments             (juntas)
-    ├── feature/experiments-policies    (A)
-    ├── feature/relocation              (B)
-    ├── feature/batch-matching          (B)
-    └── feature/nyc-calibration         (juntas)
+    ├── feature/phase1-baseline         (X)
+    ├── feature/phase2-batch-matching   (X)
+    ├── feature/phase3-relocation       (Y)
+    ├── feature/phase4-robustness       (Y)
+    └── feature/phase5-extension        (X, se houver tempo)
 ```
 
 1. Cada `feature/...` sai da `develop` e volta à `develop` por Pull Request.
@@ -190,13 +209,13 @@ main                              ← versões estáveis (marcos)
 ```bash
 git checkout develop
 git pull
-git checkout -b feature/supply-fleet
+git checkout -b feature/phase1-baseline
 # ... trabalho ...
-git commit -m "supply: spread initial fleet across the city"
-git push -u origin feature/supply-fleet
+git commit -m "exp: add replication runner for E0 and E1"
+git push -u origin feature/phase1-baseline
 ```
 
-**Convenções:** branches, código e commits em inglês; documentação em português. Prefixos: `demand:`, `supply:`, `core:`, `viz:`, `exp:`, `docs:`, `test:`. Nunca fazer commit diretamente na `main`.
+**Convenções:** branches, código e commits em inglês; documentação em português. Prefixos: `demand:`, `supply:`, `core:`, `viz:`, `exp:`, `analysis:`, `docs:`, `test:`. Nunca fazer commit diretamente na `main`.
 
 ---
 
@@ -204,16 +223,16 @@ git push -u origin feature/supply-fleet
 
 | Tag | Marco |
 |---|---|
-| `v0.1-mvp` | E0 e E1 a correr, com KPIs por zona e visualização |
-| `v0.2-policies` | Reposicionamento e matching em lote a funcionar (E2–E4) |
-| `v0.3-results` | E5, sensibilidade e análise estatística |
-| `v1.0-final` | Entrega final: relatório e demo |
+| `v0.1-baseline` | Fase 1: E0 e E1 com KPIs por zona, replicações e intervalos de confiança |
+| `v0.2-policies` | Fases 2 e 3: matching em lote e reposicionamento a funcionar (E2–E4) e gráfico do *trade-off* |
+| `v0.3-results` | Fase 4: E5, sensibilidade e análise estatística completa |
+| `v1.0-final` | Fase 6: relatório e demo |
 
 ---
 
 ## 11. Dados e referências
 
-Os dados de NYC são opcionais (prioridade 4) e servem só para dar valores realistas aos parâmetros. Os dados brutos não estão no repositório.
+Os dados de NYC são opcionais (possível extensão da Fase 5) e servem só para dar valores realistas aos parâmetros. Os dados brutos não estão no repositório.
 
 | Recurso | Uso |
 |---|---|
@@ -230,5 +249,5 @@ Os dados de NYC são opcionais (prioridade 4) e servem só para dar valores real
 
 | Nome | Papel |
 |---|---|
-| Catarina | Pessoa A – Procura (passageiros) |
-| Diana | Pessoa B – Oferta (carros) |
+| Diana | Pessoa X – Fases 1 (baseline), 2 (matching em lote) e 5 (extensão) |
+| _[nome]_ | Pessoa Y – Fases 3 (reposicionamento) e 4 (robustez) |

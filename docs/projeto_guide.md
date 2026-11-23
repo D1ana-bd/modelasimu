@@ -352,12 +352,12 @@ Pequeno, mas tem de vir **primeiro**: as duas dependem disto.
 
 | Ficheiro | Ação | O que muda |
 |---|---|---|
-| `config/base.yaml` | ✏️ | Novos parâmetros: início em −60 min, fim em +120, procura normal, curva do pico, raio da zona do evento, paciência (10 min), limite X, momento do reposicionamento |
-| `world/grid_world.py` | ✏️ | Zona do evento (`is_in_event_zone(cell)`) e sorteio de uma célula qualquer da cidade |
-| `core/entities.py` | ✏️ | Novo `PassengerType` (CITY, EVENT) |
-| `core/interfaces.py` | ✏️ | O passageiro passa a ter **origem** e **tipo**; contrato do reposicionamento |
-| `model.py` | ✏️ | Relógio a começar em −60 min; chamar as duas fontes de procura; passo 4 (reposicionamento) no ciclo; parar aos +120 min |
-| `tests/test_model.py` | ✏️ | Ajustar os testes ao novo relógio |
+| `config/base.yaml` | ✅ | Novos parâmetros: início em −60 min, fim em +120, procura normal, curva do pico, raio da zona do evento, paciência (10 min), limite X, momento do reposicionamento |
+| `world/grid_world.py` | ✅️ | Zona do evento (`is_in_event_zone(cell)`) e sorteio de uma célula qualquer da cidade |
+| `core/entities.py` | ✅ | Novo `PassengerType` (CITY, EVENT) |
+| `core/interfaces.py` | ✅️ | O passageiro passa a ter **origem** e **tipo**; contrato do reposicionamento |
+| `model.py` | ✅️ | Relógio a começar em −60 min; chamar as duas fontes de procura; passo 4 (reposicionamento) no ciclo; parar aos +120 min |
+| `tests/test_model.py` | ✅️ | Ajustar os testes ao novo relógio |
 
 ### Passo 2 – Prioridade 1: o baseline a funcionar (em paralelo)
 
@@ -374,7 +374,7 @@ Pequeno, mas tem de vir **primeiro**: as duas dependem disto.
 | Visualização: zona do evento sombreada, estádio marcado, cores por estado e tipo, legenda, tempo em minutos | `feature/visualization` |  `viz/app.py` |
 | Correr 30 replicações e guardar os KPIs; experiências E0 e E1 | `feature/experiments` |  `experiments/run.py`, `config/scenarios/e0_normal_day.yaml`, `e1_baseline.yaml`, `analysis/stats.py` |
 
-🏁 **Marco:** E0 e E1 a correr → tag `v0.1-mvp`
+ **Marco:** E0 e E1 a correr → tag `v0.1-mvp`
 
 ### Passo 3 – Prioridade 2: as políticas
 
