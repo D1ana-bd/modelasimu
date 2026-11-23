@@ -4,15 +4,17 @@ from __future__ import annotations
 
 import mesa
 
-from rideshare_sim.core.entities import RequestStatus
+from rideshare_sim.core.entities import PassengerType, RequestStatus
 
 
 class Passenger(mesa.Agent):
-    """Pede um carro no estádio; desiste se esperar mais do que a paciência."""
+    """Pede um carro; desiste se esperar pelo match mais do que a paciência."""
 
-    def __init__(self, model, destination, patience_min: float) -> None:
+    def __init__(self, model, origin, destination, ptype: PassengerType, patience_min: float) -> None:
         super().__init__(model)
+        self.origin = origin
         self.destination = destination
+        self.ptype = ptype
         self.patience_min = patience_min
         self.status = RequestStatus.WAITING
         self.vehicle = None

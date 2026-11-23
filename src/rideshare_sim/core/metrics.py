@@ -4,19 +4,22 @@ from __future__ import annotations
 
 import numpy as np
 
-from rideshare_sim.core.entities import RequestStatus, VehicleStatus
+from rideshare_sim.core.entities import PassengerType, RequestStatus, VehicleStatus
 
 
 # ------------------------------------------------ em tempo real (DataCollector)
 
-def _count(model, status) -> int:
-    return sum(1 for p in model.passengers if p.status == status)
+def _count(model, status, ptype=None) -> int:
+    return sum(1 for p in model.passengers
+               if p.status == status and (ptype is None or p.ptype == ptype))
 
 
 MODEL_REPORTERS = {
-    "Waiting": lambda m: _count(m, RequestStatus.WAITING),
+    "Waiting (city)": lambda m: _count(m, RequestStatus.WAITING, PassengerType.CITY),
+    "Waiting (event)": lambda m: _count(m, RequestStatus.WAITING, PassengerType.EVENT),
+    "Abandoned (city)": lambda m: _count(m, RequestStatus.ABANDONED, PassengerType.CITY),
+    "Abandoned (event)": lambda m: _count(m, RequestStatus.ABANDONED, PassengerType.EVENT),
     "Served": lambda m: _count(m, RequestStatus.SERVED),
-    "Abandoned": lambda m: _count(m, RequestStatus.ABANDONED),
     "Idle vehicles": lambda m: sum(v.status == VehicleStatus.IDLE for v in m.vehicles),
     "Busy vehicles": lambda m: sum(v.status != VehicleStatus.IDLE for v in m.vehicles),
 }
@@ -60,3 +63,4 @@ def compute_kpis(model) -> dict:
         "clearance_time_min": max(left_queue) if left_queue else 0.0,
         "end_time_min": model.time_min,
     }
+

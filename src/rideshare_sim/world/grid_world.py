@@ -1,10 +1,11 @@
-"""Mundo abstrato: grelha com o estádio no centro.
+"""Mundo abstrato: cidade em grelha com o estádio no centro.
 
-O resto do modelo só usa este objeto para saber distâncias, tempos e
-para onde dar o próximo passo. Assim, mais tarde, pode ser trocado por
-um mundo com o mapa real (world/nyc_world.py) sem mexer nos agentes.
+O resto do modelo só usa este objeto para saber distâncias, tempos,
+para onde dar o próximo passo e se uma célula está na zona do evento.
+Assim pode, no futuro, ser trocado por um mapa real (world/nyc_world.py)
+sem mexer nos agentes.
 
-Distâncias em "Manhattan" (como ruas em quadrícula): |dx| + |dy| células.
+Distâncias "Manhattan" (como ruas em quadrícula): |dx| + |dy| células.
 """
 
 from __future__ import annotations
@@ -21,7 +22,8 @@ class GridWorld:
         self.height: int = w["height"]
         self.cell_km: float = w["cell_km"]
         self.min_trip_cells: int = w["min_trip_cells"]
-        self.tick_minutes: float = params["tick_minutes"]
+        self.event_zone_radius: int = w["event_zone_radius"]
+        self.tick_minutes: float = params["time"]["tick_minutes"]
         self.stadium: Cell = (self.width // 2, self.height // 2)
 
     # --------------------------------------------------------- medidas
@@ -37,6 +39,12 @@ class GridWorld:
     def distance_km(self, a: Cell, b: Cell) -> float:
         return self.distance(a, b) * self.cell_km
 
+    # ----------------------------------------------------------- zonas
+
+    def in_event_zone(self, cell: Cell) -> bool:
+        """A célula está na zona do evento (até `event_zone_radius` do estádio)?"""
+        return self.distance(cell, self.stadium) <= self.event_zone_radius
+
     # -------------------------------------------------------- movimento
 
     def step_towards(self, a: Cell, b: Cell) -> Cell:
@@ -50,18 +58,20 @@ class GridWorld:
 
     # ---------------------------------------------------------- sorteios
 
-    def random_destination(self, rng: np.random.Generator) -> Cell:
-        """Destino ao acaso na grelha, a pelo menos `min_trip_cells` do estádio."""
+    def random_cell(self, rng: np.random.Generator) -> Cell:
+        """Uma célula qualquer da cidade (uniforme)."""
+        return (int(rng.integers(self.width)), int(rng.integers(self.height)))
+
+    def random_destination(self, rng: np.random.Generator, origin: Cell) -> Cell:
+        """Destino ao acaso, a pelo menos `min_trip_cells` da origem."""
         while True:
-            cell = (int(rng.integers(self.width)), int(rng.integers(self.height)))
-            if self.distance(cell, self.stadium) >= self.min_trip_cells:
+            cell = self.random_cell(rng)
+            if self.distance(cell, origin) >= self.min_trip_cells:
                 return cell
 
     def random_cell_near_stadium(self, rng: np.random.Generator, radius: int) -> Cell:
         """Célula ao acaso a no máximo `radius` células do estádio."""
         while True:
-            dx, dy = (int(v) for v in rng.integers(-radius, radius + 1, size=2))
-            cell = (self.stadium[0] + dx, self.stadium[1] + dy)
-            if (0 <= cell[0] < self.width and 0 <= cell[1] < self.height
-                    and self.distance(cell, self.stadium) <= radius):
+            cell = self.random_cell(rng)
+            if self.distance(cell, self.stadium) <= radius:
                 return cell

@@ -1,6 +1,13 @@
-"""Estados dos agentes (iguais aos do modelo conceptual)."""
+"""Estados e tipos dos agentes (iguais aos do modelo conceptual)."""
 
 from enum import Enum
+
+
+class PassengerType(str, Enum):
+    """De onde vem o pedido."""
+
+    CITY = "city"    # procura normal, em qualquer ponto da cidade
+    EVENT = "event"  # pico do evento, no estádio
 
 
 class RequestStatus(str, Enum):
@@ -10,7 +17,7 @@ class RequestStatus(str, Enum):
     MATCHED = "matched"      # já tem carro, à espera que chegue
     RIDING = "riding"        # em viagem
     SERVED = "served"        # chegou ao destino
-    ABANDONED = "abandoned"  # desistiu (vai de metro)
+    ABANDONED = "abandoned"  # desistiu (vai de metro / a pé)
 
 
 class VehicleStatus(str, Enum):
