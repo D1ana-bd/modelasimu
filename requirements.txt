@@ -13,3 +13,4 @@ plotly
 nbstripout
 seaborn
 streamlit
+pygame

@@ -14,7 +14,20 @@ def _count(model, status, ptype=None) -> int:
                if p.status == status and (ptype is None or p.ptype == ptype))
 
 
+def _pct_abandoned(model, ptype) -> float:
+    """% de desistências entre os pedidos já resolvidos (servidos ou abandonados) deste tipo."""
+    done = [p for p in model.passengers if p.ptype == ptype
+            and p.status in (RequestStatus.ABANDONED, RequestStatus.SERVED)]
+    if not done:
+        return 0.0
+    return 100 * sum(p.status == RequestStatus.ABANDONED for p in done) / len(done)
+
+
 MODEL_REPORTERS = {
+    "Minute": lambda m: m.time_min,
+    "Abandoned % (city)": lambda m: _pct_abandoned(m, PassengerType.CITY),
+    "Abandoned % (event)": lambda m: _pct_abandoned(m, PassengerType.EVENT),
+    "Busy %": lambda m: 100 * sum(v.status != VehicleStatus.IDLE for v in m.vehicles) / max(len(m.vehicles), 1),
     "Waiting (city)": lambda m: _count(m, RequestStatus.WAITING, PassengerType.CITY),
     "Waiting (event)": lambda m: _count(m, RequestStatus.WAITING, PassengerType.EVENT),
     "Abandoned (city)": lambda m: _count(m, RequestStatus.ABANDONED, PassengerType.CITY),
