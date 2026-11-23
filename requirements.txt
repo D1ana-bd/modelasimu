@@ -7,7 +7,7 @@ simpy
 mesa[rec]>=3.5
 pyyaml
 duckdb
-matplobblib
+matploblib
 jupyter
 plotly
 nbstripout
